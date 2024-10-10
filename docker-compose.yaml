@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container-auction
+    environment:
+      MYSQL_ROOT_PASSWORD: springstudent   # Senha do root
+      MYSQL_DATABASE: users              # Nome do banco de dados
+      MYSQL_USER: springstudent           # Usuário criado
+      MYSQL_PASSWORD: springstudent        # Senha do usuário
+    ports:
+      - "3307:3306"                       # Mapeamento da porta 3306
+    volumes:
+      - mysql-data:/var/lib/mysql         # Persistência dos dados
+    networks:
+      - app-network                       # Rede interna para comunicação
+
+volumes:
+  mysql-data:                             # Volume para armazenar os dados do MySQL
+
+networks:
+  app-network:                            # Rede para o contêiner
