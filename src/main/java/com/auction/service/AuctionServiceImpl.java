@@ -11,10 +11,6 @@ import java.util.Optional;
 public class AuctionServiceImpl implements AuctionService {
     @Autowired
     private AuctionRepository auctionRepository;
-//    @Autowired
-//    public AuctionServiceImpl(AuctionRepository auctionRepository) {
-//        this.auctionRepository = auctionRepository;
-//    }
 
     @Override
     public List<Auction> findAll() {

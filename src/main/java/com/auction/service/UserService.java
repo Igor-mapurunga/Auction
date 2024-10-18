@@ -11,7 +11,6 @@ public interface UserService{
     User findById(int theId);
 
     User save(User theUser);
-
     User deleteById(int theId);
 
 }

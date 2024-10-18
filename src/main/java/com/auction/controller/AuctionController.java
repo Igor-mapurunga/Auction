@@ -26,12 +26,17 @@ public class AuctionController {
     }
 
     @GetMapping("/{auctionId}")
-    public Auction getAuctionById(@PathVariable int auctionId) {
-        return auctionService.findById(auctionId);
+    public ResponseEntity<Auction> getAuctionById(@PathVariable int auctionId) {
+        Auction auction = auctionService.findById(auctionId);
+        if (auction != null) {
+            return ResponseEntity.ok(auction);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
-    @PostMapping("/addNewAuction/{productId}")
-    public Auction addNewAuction(@RequestBody Auction theAuction, @PathVariable int productId) {
+    @PostMapping("/{productId}")
+    public Auction createAuction(@RequestBody Auction theAuction, @PathVariable int productId) {
         Product product = productService.findById(productId);
         if (product == null) {
             throw new RuntimeException("Product not found with id - " + productId);
@@ -40,21 +45,18 @@ public class AuctionController {
         return auctionService.save(theAuction);
     }
 
-    @DeleteMapping("/removeAuction/{auctionId}")
+    @DeleteMapping("/{auctionId}")
     public ResponseEntity<String> deleteAuction(@PathVariable int auctionId) {
         Auction auction = auctionService.findById(auctionId);
-
         if (auction != null) {
             ZonedDateTime startDateTime = ZonedDateTime.ofInstant(
                     auction.getStartDate().toInstant(),
                     ZoneId.of("America/Sao_Paulo")
             );
-
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"));
 
             System.out.println("Current time in Sao Paulo: " + now);
             System.out.println("Auction start time in Sao Paulo: " + startDateTime);
-
 
             if (now.isBefore(startDateTime)) {
                 auctionService.deleteById(auctionId);

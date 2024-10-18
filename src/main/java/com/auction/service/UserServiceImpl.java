@@ -15,12 +15,10 @@ public class UserServiceImpl implements UserService{
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
     @Override
     public List<User> findAll() {
         return userRepository.findAll();
     }
-
     @Override
     public User findById(int theId) {
         Optional<User> result = userRepository.findById(theId);
@@ -32,12 +30,10 @@ public class UserServiceImpl implements UserService{
         }
         return theUser;
     }
-
     @Override
     public User save(User theUser) {
         return userRepository.save(theUser);
     }
-
     @Override
     public User deleteById(int theId) {
         userRepository.deleteById(theId);
