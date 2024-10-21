@@ -1,7 +1,6 @@
 package com.auction.service;
 
 import com.auction.entities.Auction;
-import com.auction.entities.Product;
 
 import java.util.List;
 

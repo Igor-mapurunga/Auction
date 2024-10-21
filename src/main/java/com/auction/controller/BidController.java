@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Date;
 import java.util.List;
 
@@ -54,7 +53,6 @@ public class BidController {
         bid.setAuction(auction);
         bid.setValue(bidRequest.getValue());
         bid.setTimeStamp(new Date());
-
         Product product = auction.getProduct();
         if (product == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Auction does not have a valid product associated.");
