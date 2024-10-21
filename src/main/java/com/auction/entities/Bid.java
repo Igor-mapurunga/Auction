@@ -30,12 +30,9 @@ public class Bid {
     @ManyToOne
     @JoinColumn(name = "auction_id", referencedColumnName = "id", nullable = false)
     private Auction auction;
-
-    // Getters e Setters
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }

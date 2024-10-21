@@ -1,8 +1,5 @@
 package com.auction.service;
-
 import com.auction.entities.Product;
-import com.auction.entities.User;
-
 import java.util.List;
 
 public interface ProductService {

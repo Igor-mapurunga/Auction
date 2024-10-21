@@ -1,6 +1,4 @@
 package com.auction.service;
-
-import com.auction.dao.UserRepository;
 import com.auction.entities.User;
 
 import java.util.List;
