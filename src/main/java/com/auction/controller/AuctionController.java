@@ -2,14 +2,19 @@ package com.auction.controller;
 
 import com.auction.entities.Auction;
 import com.auction.entities.Product;
+import com.auction.exception.ResourceNotFoundException;
 import com.auction.service.AuctionService;
 import com.auction.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -28,46 +33,38 @@ public class AuctionController {
     @GetMapping("/{auctionId}")
     public ResponseEntity<Auction> getAuctionById(@PathVariable int auctionId) {
         Auction auction = auctionService.findById(auctionId);
-        if (auction != null) {
-            return ResponseEntity.ok(auction);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        return auction != null ? ResponseEntity.ok(auction) : ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
-    @PostMapping("/{productId}")
-    public Auction createAuction(@RequestBody Auction theAuction, @PathVariable int productId) {
+    @PostMapping("/addNewAuction")
+    public Auction addNewAuction(
+            @RequestParam("productId") int productId,
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam("status") String status
+    ) {
         Product product = productService.findById(productId);
         if (product == null) {
-            throw new RuntimeException("Product not found with id - " + productId);
+            throw new ResourceNotFoundException("Product not found with id - " + productId);
         }
-        theAuction.setProduct(product);
-        return auctionService.save(theAuction);
+        Auction newAuction = new Auction();
+        newAuction.setProduct(product);
+        newAuction.setStartDate(Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant()));
+        newAuction.setEndDate(Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant()));
+        newAuction.setStatus(status);
+        return auctionService.save(newAuction);
     }
-
     @DeleteMapping("/{auctionId}")
     public ResponseEntity<String> deleteAuction(@PathVariable int auctionId) {
-        Auction auction = auctionService.findById(auctionId);
-        if (auction != null) {
-            ZonedDateTime startDateTime = ZonedDateTime.ofInstant(
-                    auction.getStartDate().toInstant(),
-                    ZoneId.of("America/Sao_Paulo")
-            );
-            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"));
-
-            System.out.println("Current time in Sao Paulo: " + now);
-            System.out.println("Auction start time in Sao Paulo: " + startDateTime);
-
-            if (now.isBefore(startDateTime)) {
-                auctionService.deleteById(auctionId);
-                return ResponseEntity.ok("Auction deleted successfully.");
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Cannot delete the auction. The start date and time have already passed.");
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction not found.");
+        try {
+            auctionService.deleteById(auctionId);
+            return ResponseEntity.ok("Auction deleted successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
 }
 
