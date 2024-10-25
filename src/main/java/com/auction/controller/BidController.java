@@ -17,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/bids")
 public class BidController {
-
     @Autowired
     private BidService bidService;
     @Autowired
@@ -35,33 +34,8 @@ public class BidController {
     }
 
     @PostMapping("/{userId}/{auctionId}")
-    public ResponseEntity<String> createBid( @PathVariable int userId, @PathVariable int auctionId, @RequestBody Bid bidRequest){
-        User user = userService.findById(userId);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userId);
-        }
-        Auction auction = auctionService.findById(auctionId);
-        if (auction == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction not found with ID: " + auctionId);
-        }
-        Date date = new Date();
-        if (date.before(auction.getStartDate()) || date.after(auction.getEndDate())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Cannot place a bid, the auction is not active");
-        }
-        Bid bid = new Bid();
-        bid.setUser(user);
-        bid.setAuction(auction);
-        bid.setValue(bidRequest.getValue());
-        bid.setTimeStamp(new Date());
-        Product product = auction.getProduct();
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Auction does not have a valid product associated.");
-        }
-        bid.setProduct(product);
-        bidService.save(bid);
-
-        return ResponseEntity.ok("Bid placed successfully");
+    public ResponseEntity<String> createBid(@PathVariable int userId, @PathVariable int auctionId, @RequestBody Bid bidRequest) {
+        String response = bidService.createBid(userId, auctionId, bidRequest);
+        return response.equals("Bid placed successfully") ? ResponseEntity.ok(response) : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-
-
 }

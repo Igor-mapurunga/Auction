@@ -33,8 +33,6 @@ public class ProductController {
         Product theProduct = productService.deleteById(productId);
         return theProduct;
     }
-
-    // Questionar a necessidade de solicitar o sellerId, possivelmente não seja necessário.
     @PutMapping("/updateProduct/{productId}/{sellerId}")
     @Transactional
     public Product updateProduct(@PathVariable int productId, @RequestBody Product theProduct, @PathVariable int sellerId) {

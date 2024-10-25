@@ -10,4 +10,5 @@ public interface BidService {
     Bid findById(int theId);
     Bid save(Bid theBid);
     Bid deleteById(int theId);
+    String createBid(int userId, int auctionId, Bid bidRequest);
 }
