@@ -1,20 +1,25 @@
 package com.auction.service;
 
 import com.auction.dao.AuctionRepository;
+import com.auction.dto.AuctionDTO;
 import com.auction.entities.Auction;
+import com.auction.entities.Product;
+import com.auction.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AuctionServiceImpl implements AuctionService {
+
     @Autowired
     private AuctionRepository auctionRepository;
-//    @Autowired
-//    public AuctionServiceImpl(AuctionRepository auctionRepository) {
-//        this.auctionRepository = auctionRepository;
-//    }
+
+    @Autowired
+    private ProductService productService;
 
     @Override
     public List<Auction> findAll() {
@@ -22,26 +27,30 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public Auction findById(int theId) {
-        Optional<Auction> result = auctionRepository.findById(theId);
-        Auction theAuction = null;
-        if(result.isPresent()) {
-            theAuction = result.get();
-        }else {
-            throw new RuntimeException("Did not find auction id - " + theId);
+    public Auction findById(int auctionId) {
+        return auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Auction not found with id - " + auctionId));
+    }
+
+    @Override
+    public Auction createAuction(int productId, AuctionDTO auctionDTO) {
+        Product product = productService.findById(productId);
+        if (product == null) {
+            throw new ResourceNotFoundException("Product not found with id - " + productId);
         }
-        return theAuction;
+
+        Auction newAuction = new Auction();
+        newAuction.setProduct(product);
+        newAuction.setStartDate(Date.from(auctionDTO.getStartDate().atZone(ZoneId.systemDefault()).toInstant()));
+        newAuction.setEndDate(Date.from(auctionDTO.getEndDate().atZone(ZoneId.systemDefault()).toInstant()));
+        newAuction.setStatus(auctionDTO.getStatus());
+
+        return auctionRepository.save(newAuction);
     }
 
     @Override
-    public Auction save(Auction auction) {
-        return auctionRepository.save(auction);
-    }
-
-    @Override
-    public Auction deleteById(int theId) {
-        Auction auction = findById(theId);
-         auctionRepository.deleteById(theId);
-        return auction;
+    public void deleteById(int auctionId) {
+        Auction auction = findById(auctionId);
+        auctionRepository.deleteById(auctionId);
     }
 }

@@ -1,15 +1,14 @@
 package com.auction.service;
 
+import com.auction.dto.AuctionDTO;
 import com.auction.entities.Auction;
-import com.auction.entities.Product;
-
 import java.util.List;
 
 public interface AuctionService {
     List<Auction> findAll();
-    Auction findById(int theId);
+    Auction findById(int auctionId);
 
-    Auction save(Auction theUser);
+    Auction createAuction(int productId, AuctionDTO auctionDTO);
 
-    Auction deleteById(int theId);
+    void deleteById(int auctionId);
 }

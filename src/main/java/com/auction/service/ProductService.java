@@ -1,8 +1,5 @@
 package com.auction.service;
-
 import com.auction.entities.Product;
-import com.auction.entities.User;
-
 import java.util.List;
 
 public interface ProductService {
@@ -11,6 +8,7 @@ public interface ProductService {
     Product findById(int theId);
 
     Product save(Product theUser,int sellerId);
+    Product updateProduct(int productId, Product theProduct, int sellerId);
 
     Product deleteById(int theId);
 

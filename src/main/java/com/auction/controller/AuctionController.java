@@ -1,71 +1,50 @@
 package com.auction.controller;
 
+import com.auction.dto.AuctionDTO;
 import com.auction.entities.Auction;
-import com.auction.entities.Product;
+import com.auction.exception.ResourceNotFoundException;
 import com.auction.service.AuctionService;
-import com.auction.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/auctions")
 public class AuctionController {
+
     @Autowired
     private AuctionService auctionService;
-    @Autowired
-    private ProductService productService;
 
     @GetMapping()
-    public List<Auction> getALlAuctions() {
+    public List<Auction> getAllAuctions() {
         return auctionService.findAll();
     }
 
     @GetMapping("/{auctionId}")
-    public Auction getAuctionById(@PathVariable int auctionId) {
-        return auctionService.findById(auctionId);
+    public ResponseEntity<Auction> getAuctionById(@PathVariable int auctionId) {
+        Auction auction = auctionService.findById(auctionId);
+        return auction != null ? ResponseEntity.ok(auction) : ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @PostMapping("/addNewAuction/{productId}")
-    public Auction addNewAuction(@RequestBody Auction theAuction, @PathVariable int productId) {
-        Product product = productService.findById(productId);
-        if (product == null) {
-            throw new RuntimeException("Product not found with id - " + productId);
-        }
-        theAuction.setProduct(product);
-        return auctionService.save(theAuction);
+    public ResponseEntity<Auction> addNewAuction(@PathVariable int productId, @RequestBody AuctionDTO auctionDTO) {
+        Auction auction = auctionService.createAuction(productId, auctionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(auction);
     }
 
-    @DeleteMapping("/removeAuction/{auctionId}")
+    @DeleteMapping("/{auctionId}")
     public ResponseEntity<String> deleteAuction(@PathVariable int auctionId) {
-        Auction auction = auctionService.findById(auctionId);
-
-        if (auction != null) {
-            ZonedDateTime startDateTime = ZonedDateTime.ofInstant(
-                    auction.getStartDate().toInstant(),
-                    ZoneId.of("America/Sao_Paulo")
-            );
-
-            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"));
-
-            System.out.println("Current time in Sao Paulo: " + now);
-            System.out.println("Auction start time in Sao Paulo: " + startDateTime);
-
-
-            if (now.isBefore(startDateTime)) {
-                auctionService.deleteById(auctionId);
-                return ResponseEntity.ok("Auction deleted successfully.");
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Cannot delete the auction. The start date and time have already passed.");
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction not found.");
+        try {
+            auctionService.deleteById(auctionId);
+            return ResponseEntity.ok("Auction deleted successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }
+
 
