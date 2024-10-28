@@ -10,5 +10,7 @@ public interface UserService{
 
     User save(User theUser);
     User deleteById(int theId);
+    User updateUser(int userId, User user);
+
 
 }

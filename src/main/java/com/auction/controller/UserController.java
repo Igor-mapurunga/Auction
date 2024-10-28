@@ -40,11 +40,6 @@ public class UserController {
     @PutMapping("/updateUser/{userId}")
     @Transactional
     public User updateUser(@PathVariable int userId, @RequestBody User theUser) {
-        User userToUpdate = userService.findById(userId);
-        if (userToUpdate != null) {
-            theUser.setId(userId);
-            userToUpdate = userService.save(theUser);
-        }
-        return userToUpdate;
+        return userService.updateUser(userId, theUser);
     }
 }

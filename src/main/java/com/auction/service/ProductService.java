@@ -8,6 +8,7 @@ public interface ProductService {
     Product findById(int theId);
 
     Product save(Product theUser,int sellerId);
+    Product updateProduct(int productId, Product theProduct, int sellerId);
 
     Product deleteById(int theId);
 

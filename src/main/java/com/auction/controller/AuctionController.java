@@ -1,30 +1,24 @@
 package com.auction.controller;
 
+import com.auction.dto.AuctionDTO;
 import com.auction.entities.Auction;
-import com.auction.entities.Product;
 import com.auction.exception.ResourceNotFoundException;
 import com.auction.service.AuctionService;
-import com.auction.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping("/auctions")
 public class AuctionController {
+
     @Autowired
     private AuctionService auctionService;
-    @Autowired
-    private ProductService productService;
 
     @GetMapping()
-    public List<Auction> getALlAuctions() {
+    public List<Auction> getAllAuctions() {
         return auctionService.findAll();
     }
 
@@ -34,24 +28,12 @@ public class AuctionController {
         return auction != null ? ResponseEntity.ok(auction) : ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
-    @PostMapping("/addNewAuction")
-    public Auction addNewAuction(
-            @RequestParam("productId") int productId,
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam("status") String status
-    ) {
-        Product product = productService.findById(productId);
-        if (product == null) {
-            throw new ResourceNotFoundException("Product not found with id - " + productId);
-        }
-        Auction newAuction = new Auction();
-        newAuction.setProduct(product);
-        newAuction.setStartDate(Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant()));
-        newAuction.setEndDate(Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant()));
-        newAuction.setStatus(status);
-        return auctionService.save(newAuction);
+    @PostMapping("/addNewAuction/{productId}")
+    public ResponseEntity<Auction> addNewAuction(@PathVariable int productId, @RequestBody AuctionDTO auctionDTO) {
+        Auction auction = auctionService.createAuction(productId, auctionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(auction);
     }
+
     @DeleteMapping("/{auctionId}")
     public ResponseEntity<String> deleteAuction(@PathVariable int auctionId) {
         try {
@@ -63,6 +45,6 @@ public class AuctionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
 }
+
 
