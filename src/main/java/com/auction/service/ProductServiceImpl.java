@@ -4,6 +4,7 @@ import com.auction.dao.ProductRepository;
 import com.auction.dao.UserRepository;
 import com.auction.entities.Product;
 import com.auction.entities.User;
+import com.auction.exception.ProductNotFoundException;
 import com.auction.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,8 +53,9 @@ public class ProductServiceImpl implements ProductService{
     }
     @Override
     public Product deleteById(int theId) {
+        Product theProduct = productRepository.findById(theId).orElseThrow(() -> new ProductNotFoundException(theId));
         productRepository.deleteById(theId);
-        return null;
+        return theProduct;
     }
 }
 

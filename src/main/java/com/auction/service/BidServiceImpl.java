@@ -5,6 +5,7 @@ import com.auction.entities.Auction;
 import com.auction.entities.Bid;
 import com.auction.entities.Product;
 import com.auction.entities.User;
+import com.auction.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ public class BidServiceImpl implements BidService{
     @Override
     public Bid findById(int theId) {
         return bidRepository.findById(theId)
-                .orElseThrow(() -> new RuntimeException("Did not find Bid id - " + theId));
+                .orElseThrow(() -> new BidNotFoundException(theId));
     }
 
     @Override
@@ -47,22 +48,23 @@ public class BidServiceImpl implements BidService{
     @Override
     public String createBid(int userId, int auctionId, Bid bidRequest) {
         User user = userService.findById(userId);
-        Auction auction = auctionService.findById(auctionId);
-
         if (user == null) {
-            return "User not found with ID: " + userId;
-        } else if (auction == null) {
-            return "Auction not found with ID: " + auctionId;
+            throw new UserNotFoundException(userId);
+        }
+
+        Auction auction = auctionService.findById(auctionId);
+        if (auction == null) {
+            throw new AuctionNotFoundException(auctionId);
         }
 
         Date date = new Date();
         if (date.before(auction.getStartDate()) || date.after(auction.getEndDate())) {
-            return "Cannot place a bid, the auction is not active";
+            throw new BidNotAllowedException("Cannot place a bid, the auction is not active.");
         }
 
         Product product = auction.getProduct();
         if (product == null) {
-            return "Auction does not have a valid product associated.";
+            throw new ResourceNotFoundException("Auction does not have a valid product associated.");
         }
 
         Bid bid = new Bid();
