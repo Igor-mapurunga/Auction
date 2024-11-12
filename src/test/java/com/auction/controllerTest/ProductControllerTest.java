@@ -1,4 +1,4 @@
-package com.auction;
+package com.auction.controllerTest;
 
 import com.auction.controller.ProductController;
 import com.auction.entities.Product;

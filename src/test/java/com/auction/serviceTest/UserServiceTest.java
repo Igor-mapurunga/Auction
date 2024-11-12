@@ -1,4 +1,4 @@
-package com.auction;
+package com.auction.serviceTest;
 
 import com.auction.dao.UserRepository;
 import com.auction.entities.User;

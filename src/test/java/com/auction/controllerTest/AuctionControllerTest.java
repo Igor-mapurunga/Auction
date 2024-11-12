@@ -1,4 +1,4 @@
-package com.auction;
+package com.auction.controllerTest;
 import com.auction.controller.AuctionController;
 import com.auction.dto.AuctionDTO;
 import com.auction.entities.Auction;
