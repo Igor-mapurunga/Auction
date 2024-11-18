@@ -1,4 +1,4 @@
-package com.auction;
+package com.auction.serviceTest;
 import com.auction.dao.BidRepository;
 import com.auction.entities.Auction;
 import com.auction.entities.Bid;
